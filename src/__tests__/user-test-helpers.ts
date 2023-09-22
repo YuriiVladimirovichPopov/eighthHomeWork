@@ -1,0 +1,12 @@
+import  request  from 'supertest';
+import { app } from '../settings';
+import { UserInputModel } from '../models/users/userInputModel';
+
+
+
+export const createUser = (data: UserInputModel) => {
+    return request(app)
+            .post('/users')
+            .auth('admin', 'qwerty')
+            .send(data)
+}

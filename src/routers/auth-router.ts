@@ -88,7 +88,7 @@ async(req: RequestWithBody<UsersMongoDbType>, res: Response) => {
     if(!user) {
         return res.sendStatus(sendStatus.BAD_REQUEST_400)
     }
-    console.log('registration email resending', user)
+
     if (user.emailConfirmation.isConfirmed) {
         return res.status(sendStatus.BAD_REQUEST_400).send({info: "isConfirmed" })
     }
@@ -102,12 +102,27 @@ async(req: RequestWithBody<UsersMongoDbType>, res: Response) => {
     
     const updatedUser = await usersCollection.findOne({_id: user!._id})
     
-    
     try {
         await emailManager.sendEmail(updatedUser)
     } catch {
         error("email is already confirmed", error)
     }
         return res.sendStatus(sendStatus.NO_CONTENT_204)
-    
+})
+
+authRouter.post('refresh-token', async(req, res) => {
+const acsessToken = req.params
+const refreshToken = req.
+
+
+return res.sendStatus(sendStatus.OK_200)
+return res.sendStatus(sendStatus.UNAUTHORIZED_401)
+})
+
+authRouter.post('logout', async(req, res) => {
+
+    return res.sendStatus(sendStatus.NO_CONTENT_204)
+    /* If the JWT refreshToken inside cookie is missing, expired or incorrect */ 
+    return res.sendStatus(sendStatus.UNAUTHORIZED_401)
+
 })

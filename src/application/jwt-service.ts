@@ -5,7 +5,7 @@ import { UsersMongoDbType } from '../types';
 
 export const jwtService =  {
     async createJWT(user: UsersMongoDbType) {
-        const token = jwt.sign({userId: user._id}, accessTokenSecret1, {expiresIn: '10sec'})
+        const token = jwt.sign({userId: user._id}, accessTokenSecret1, {expiresIn: '100sec'}) // 10sec
         return token
     },
 
@@ -19,7 +19,7 @@ export const jwtService =  {
     },
     //todo, may be finished!
     async createRefreshToken(user: UsersMongoDbType) {
-        const refToken = jwt.sign({userId: user._id}, refreshTokenSecret2, {expiresIn: '20sec'})
+        const refToken = jwt.sign({userId: user._id}, refreshTokenSecret2, {expiresIn: '200sec'})  // 20sec
         return refToken;
     }
 }

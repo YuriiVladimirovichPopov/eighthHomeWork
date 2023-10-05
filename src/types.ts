@@ -31,7 +31,6 @@ import { CommentViewModel } from './models/comments/commentViewModel';
     passwordHash: string,
     passwordSalt: string,
     emailConfirmation: EmailConfirmationType,
-    refreshToken: string,
     refreshTokenBlackList: string[]
   }
 
@@ -59,7 +58,7 @@ import { CommentViewModel } from './models/comments/commentViewModel';
     ip: string
   }
 
-//todo create UserAccountDBType
+
 
 
 

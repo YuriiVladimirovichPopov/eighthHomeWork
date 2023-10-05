@@ -32,8 +32,8 @@ export const authService = {
                 }),
                 isConfirmed: false
             },
-            refreshTokenBlackList: [],
-            refreshToken: ""
+            refreshTokenBlackList: []
+            
         }
 
         const createResult = usersRepository.createUser(newUser)

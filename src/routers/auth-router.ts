@@ -113,7 +113,7 @@ authRouter.post('/registration-email-resending', emailConfValidation, async(req:
         return res.sendStatus(sendStatus.NO_CONTENT_204)
 })
 
-authRouter.post('refresh-token', async (req: Request, res: Response) => {
+authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     try {
     const refreshToken = req.cookies.refreshToken
     if (!refreshToken) return res.sendStatus(sendStatus.UNAUTHORIZED_401).send({ message: 'Refresh token not found' })
@@ -124,6 +124,7 @@ authRouter.post('refresh-token', async (req: Request, res: Response) => {
         
 
     const user = await usersRepository.findUserById(isValid.userId);
+    console.log(user)
     if(!user) return res.sendStatus(sendStatus.UNAUTHORIZED_401);
 
     const validToken = await  authService.findTokenInBlackList(user.id, refreshToken);
@@ -143,14 +144,14 @@ authRouter.post('refresh-token', async (req: Request, res: Response) => {
     }
 })
 
-authRouter.post('logout', async (req: Request, res: Response) => {
+authRouter.post('/logout', async (req: Request, res: Response) => {
     try {
-        const refreshToken = req.cookies.refreshToken;
-        
-            if (!refreshToken) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Refresh token not found' });
+        const refreshToken = req.headers.cookie?.split('=')[1]      
+        console.log('refreshToken', refreshToken)
+           if (!refreshToken) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Refresh token not found' });
       
-            const isValid = await authService.validateRefreshToken(refreshToken);
-        
+            const isValid = await authService.validateRefreshToken(refreshToken);    //вынести в мидлевару
+        console.log('is valid', isValid)
             if (!isValid) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Invalid refresh token' });
             
         const user = await usersRepository.findUserById(isValid.userId);

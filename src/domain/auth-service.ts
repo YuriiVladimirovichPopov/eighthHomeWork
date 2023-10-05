@@ -96,6 +96,7 @@ export const authService = {
     },
 
     async validateRefreshToken(refreshToken: string): Promise<any>{
+        console.log("validateRefreshToken", refreshToken)
         try {
           const payload = Jwt.verify(refreshToken, settings.refreshTokenSecret2);
           return payload;

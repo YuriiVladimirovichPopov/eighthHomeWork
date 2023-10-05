@@ -25,13 +25,13 @@ export const authRouter = Router ({})
 authRouter.post('/login', async(req: Request, res: Response) => {
     
     const user = await authService.checkCredentials(req.body.loginOrEmail, req.body.password)
-
+console.log(user)
     if (user) {
         const token = await jwtService.createJWT(user)
         const refreshToken = jwtService.createRefreshToken(user)
-
+console.log(refreshToken)
          return res
-         .cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
+         .cookie('refreshToken', refreshToken, {httpOnly: true})     //secure: true
          .status(sendStatus.OK_200)
          .json({accessToken: token})
     } else {

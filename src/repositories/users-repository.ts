@@ -33,7 +33,8 @@ export const usersRepository = {
         }
 
         const result: UsersMongoDbType[] =
-        await usersCollection.find(filter, {projection: {passwordSalt: 0, passwordHash: 0}}) 
+        await usersCollection.find(filter, {projection: 
+            {_id: 0, passwordSalt: 0, passwordHash: 0, emailConfirmation: 0}}) 
             
           .sort({[pagination.sortBy]: pagination.sortDirection})
           .skip(pagination.skip)
@@ -54,7 +55,12 @@ export const usersRepository = {
     },
 
     async findUserById(id: ObjectId):Promise<UserViewModel | null> {
-        const userById = await usersCollection.findOne({_id: new ObjectId(id)}, {projection: {passwordSalt: 0, passwordHash: 0}})
+        const userById = await usersCollection.findOne(
+            {_id: new ObjectId(id)}, 
+            {  projection: {passwordSalt: 0, 
+                            passwordHash: 0, 
+                            emailConfirmation: 0, 
+                            refreshTokenBlackList: 0}})
         if(!userById) {
             return null
         }

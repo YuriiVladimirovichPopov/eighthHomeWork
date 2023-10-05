@@ -16,8 +16,6 @@ export const usersRepository = {
             email: user.email,             
             createdAt: user.createdAt,
             emailConfirmation: user.emailConfirmation
-            //passwordHash: user.passwordHash,
-            //passwordSalt: user.passwordSalt
         }
     },
 
@@ -41,8 +39,7 @@ export const usersRepository = {
           .skip(pagination.skip)
           .limit(pagination.pageSize)
           .toArray()
-
-                    
+                   
           const totalCount: number = await usersCollection.countDocuments(filter)
           const pageCount: number = Math.ceil(totalCount / pagination.pageSize)
     

@@ -11,8 +11,10 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         res.sendStatus(sendStatus.UNAUTHORIZED_401)
         return
     }
+    const typeAuth = req.headers.authorization.split(' ')[0]
+    if(typeAuth !== 'Bearer') return res.sendStatus(401);
 
-const token = req.headers.authorization.split(' ')[1]
+    const token = req.headers.authorization.split(' ')[1]
 
 const userId = await jwtService.getUserIdByToken(token)
 

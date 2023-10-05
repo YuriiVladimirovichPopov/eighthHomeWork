@@ -33,7 +33,7 @@ authRouter.post('/login', async(req: Request, res: Response) => {
          return res
          .cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
          .status(sendStatus.OK_200)
-         .send({accessToken: token})
+         .json({accessToken: token})
     } else {
         return res.sendStatus(sendStatus.UNAUTHORIZED_401)
     }
@@ -135,7 +135,7 @@ authRouter.post('refresh-token', async (req: Request, res: Response) => {
     await usersCollection.updateOne({id: user.id}, { $push : { refreshTokenBlackList: refreshToken } })
 
     res.cookie('refreshToken', tokens.newRefreshToken, {httpOnly: true, secure: true})
-    return res.sendStatus(sendStatus.OK_200).send({ accessToken: tokens.accessToken })
+    return res.sendStatus(sendStatus.OK_200).json({ accessToken: tokens.accessToken })
 
     } catch(error) {
         console.error(error)

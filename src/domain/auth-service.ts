@@ -6,7 +6,7 @@ import {UsersMongoDbType } from "../types";
 import { error } from "console";
 import add from "date-fns/add"
 import { emailManager } from "../managers/email-manager";
-import { accessTokenSecret1, refreshTokenSecret2, settings } from "../settings";
+import { settings } from "../settings";
 import  Jwt  from "jsonwebtoken";
 import { usersCollection } from "../db/db";
 import { randomUUID } from "crypto";
@@ -97,7 +97,7 @@ export const authService = {
 
     async validateRefreshToken(refreshToken: string): Promise<any>{
         try {
-          const payload = Jwt.verify(refreshToken, refreshTokenSecret2);
+          const payload = Jwt.verify(refreshToken, settings.refreshTokenSecret2);
           return payload;
         } catch (error) {
           return null; // if token invalid
@@ -111,9 +111,9 @@ export const authService = {
 
     async refreshTokens(userId: string): Promise<{ accessToken: string, newRefreshToken: string }> {
         try {
-          const accessToken = Jwt.sign({ userId }, accessTokenSecret1 , { expiresIn: '10s' });
+          const accessToken = Jwt.sign({ userId }, settings.accessTokenSecret1 , { expiresIn: '10s' });
 
-          const newRefreshToken = Jwt.sign({ userId }, refreshTokenSecret2, { expiresIn: '20s' });
+          const newRefreshToken = Jwt.sign({ userId }, settings.refreshTokenSecret2, { expiresIn: '20s' });
       
           return { accessToken, newRefreshToken };
         } catch (error) {

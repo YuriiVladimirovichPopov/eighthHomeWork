@@ -1,4 +1,4 @@
-import { Response, Router } from "express";
+import { Response, Request, Router } from "express";
 import { sendStatus } from './send-status';
 import { LoginInputType } from '../models/users/loginInputModel';
 import { RequestWithBody, RequestWithUser, UsersMongoDbType } from '../types';
@@ -17,6 +17,7 @@ import { usersCollection } from "../db/db";
 import { randomUUID } from 'crypto';
 import { add } from "date-fns";
 import { error } from 'console';
+import cookieParser from "cookie-parser";
 
 
 export const authRouter = Router ({})
@@ -24,9 +25,15 @@ export const authRouter = Router ({})
 authRouter.post('/login', async(req: RequestWithBody<LoginInputType>, res: Response) => {
     
     const user = await authService.checkCredentials(req.body.loginOrEmail, req.body.password)
+
     if (user) {
         const token = await jwtService.createJWT(user)
-        return res.status(sendStatus.OK_200).send({accessToken: token})
+        const refreshToken = jwtService.createRefreshToken(user)
+
+         return res
+         .cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
+         .status(sendStatus.OK_200)
+         .send({accessToken: token})
     } else {
         return res.sendStatus(sendStatus.UNAUTHORIZED_401)
     }
@@ -45,8 +52,7 @@ authRouter.get('/me', authMiddleware, async(req: RequestWithUser<UserViewModel>,
     }
 })
 
-authRouter.post('/registration-confirmation', validateCode, 
-async(req: RequestWithBody<CodeType>, res: Response) => {
+authRouter.post('/registration-confirmation', validateCode, async(req: RequestWithBody<CodeType>, res: Response) => {
     const currentDate = new Date()
     
     const user = await usersRepository.findUserByConfirmationCode(req.body.code)
@@ -60,18 +66,17 @@ async(req: RequestWithBody<CodeType>, res: Response) => {
     if (user.emailConfirmation.expirationDate < currentDate ) {
         return res.status(sendStatus.BAD_REQUEST_400).send({ errorsMessages: [{ message: 'The code is exparied', field: "code" }] })
     }
-    if (user.emailConfirmation.confirmationCode !== req.body.code) {   // '!=='
+    if (user.emailConfirmation.confirmationCode !== req.body.code) {  
         return res.status(sendStatus.BAD_REQUEST_400).send({ errorsMessages: [{ message: 'Invalid code', field: "code" }] })
     }
-    console.log('registration-confirmation', user)
+   
     await authService.updateConfirmEmailByUser(user._id.toString())
    
 
         return res.sendStatus(sendStatus.NO_CONTENT_204)
 })
 
-authRouter.post('/registration', createUserValidation, 
-async(req: RequestWithBody<UserInputModel>, res: Response) => {
+authRouter.post('/registration', createUserValidation, async(req: RequestWithBody<UserInputModel>, res: Response) => {
     const user = await authService.createUser(req.body.login, req.body.email, req.body.password)
     
     if (user) {
@@ -81,8 +86,7 @@ async(req: RequestWithBody<UserInputModel>, res: Response) => {
     }
 })
 
-authRouter.post('/registration-email-resending', emailConfValidation, 
-async(req: RequestWithBody<UsersMongoDbType>, res: Response) => {
+authRouter.post('/registration-email-resending', emailConfValidation, async(req: RequestWithBody<UsersMongoDbType>, res: Response) => {
     
     const user = await usersRepository.findUserByEmail(req.body.email)
     if(!user) {
@@ -110,19 +114,59 @@ async(req: RequestWithBody<UsersMongoDbType>, res: Response) => {
         return res.sendStatus(sendStatus.NO_CONTENT_204)
 })
 
-authRouter.post('refresh-token', async(req, res) => {
-const acsessToken = req.params
-const refreshToken = req.
+authRouter.post('refresh-token', async (req: Request, res: Response) => {
+    try {
+    const refreshToken = req.cookies.refreshToken
+    if (!refreshToken) return res.sendStatus(sendStatus.UNAUTHORIZED_401).send({ message: 'Refresh token not found' })
 
+    const isValid = await authService.validateRefreshToken(refreshToken);
+    
+        if (!isValid) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Invalid refresh token' });
+        
 
-return res.sendStatus(sendStatus.OK_200)
-return res.sendStatus(sendStatus.UNAUTHORIZED_401)
+    const user = await usersRepository.findUserById(isValid.userId);
+    if(!user) return res.sendStatus(sendStatus.UNAUTHORIZED_401);
+
+    const validToken = await  authService.findTokenInBlackList(user.id, refreshToken);
+    if(validToken) return res.sendStatus(sendStatus.UNAUTHORIZED_401) 
+
+    const tokens = await authService.refreshTokens(user.id);
+
+    await usersCollection.updateOne({id: user.id}, { $push : { refreshTokenBlackList: refreshToken } })
+
+    res.cookie('refreshToken', tokens.newRefreshToken, {httpOnly: true, secure: true})
+    return res.sendStatus(sendStatus.OK_200).send({ accessToken: tokens.accessToken })
+
+    } catch(error) {
+        console.error(error)
+        return res.sendStatus(sendStatus.INTERNAL_SERVER_ERROR_500).send({ message: 'Server error'})
+
+    }
 })
 
-authRouter.post('logout', async(req, res) => {
+authRouter.post('logout', async (req: Request, res: Response) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        
+            if (!refreshToken) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Refresh token not found' });
+      
+            const isValid = await authService.validateRefreshToken(refreshToken);
+        
+            if (!isValid) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Invalid refresh token' });
+            
+        const user = await usersRepository.findUserById(isValid.userId);
+        if(!user) return res.sendStatus(sendStatus.UNAUTHORIZED_401);
 
-    return res.sendStatus(sendStatus.NO_CONTENT_204)
-    /* If the JWT refreshToken inside cookie is missing, expired or incorrect */ 
-    return res.sendStatus(sendStatus.UNAUTHORIZED_401)
-
+        const validToken = await  authService.findTokenInBlackList(user.id, refreshToken);
+        
+        if(validToken)return res.sendStatus(sendStatus.UNAUTHORIZED_401); 
+    
+    await usersCollection.updateOne({id: user.id}, { $push : { refreshTokenBlackList: refreshToken } });
+        
+            res.clearCookie('refreshToken', { httpOnly: true, secure: true });
+            res.sendStatus(sendStatus.NO_CONTENT_204);
+    } catch (error) {
+        console.error(error)
+        return res.sendStatus(sendStatus.INTERNAL_SERVER_ERROR_500).send({ message: 'Server error'})
+    }
 })

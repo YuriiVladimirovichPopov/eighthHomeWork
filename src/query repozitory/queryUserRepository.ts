@@ -1,21 +1,14 @@
 import { PaginatedType } from "../routers/helpers/pagination";
-import { UserViewModel } from "../models/users/userViewModel";
+import { UserViewModel } from '../models/users/userViewModel';
 import { usersRepository } from "../repositories/users-repository";
 import { PaginatedUser } from "../models/users/paginatedQueryUser";
-import  bcrypt  from "bcrypt";
 import { ObjectId } from "mongodb";
-import {UsersMongoDbType } from "../types";
-import { error } from "console";
-import { v4 as uuidv4 } from "uuid";
-import add from "date-fns/add"
-import { emailManager } from "../managers/email-manager";
-import { settings } from "../settings";
-import  Jwt  from "jsonwebtoken";
+import { UsersMongoDbType } from '../types';
 
 
 export const QueryUserRepository = {
     
-    async findAllUsers(pagination: PaginatedType): Promise<PaginatedUser<UserViewModel[]>> {     //tyt nado dobavit functions
+    async findAllUsers(pagination: PaginatedType): Promise<PaginatedUser<UserViewModel[]>> {    
         
         return await usersRepository.findAllUsers(pagination)
     },

@@ -4,5 +4,6 @@ export const RouterPaths = {
     posts: '/posts',
     comments: '/comments',
     emails: '/emails',
+    auth: '/auth',
     __test__: '/testing'
 }

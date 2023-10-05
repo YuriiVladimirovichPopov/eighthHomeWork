@@ -6,7 +6,7 @@ import {UsersMongoDbType } from "../types";
 import { error } from "console";
 import add from "date-fns/add"
 import { emailManager } from "../managers/email-manager";
-import { settings } from "../settings";
+import { accessTokenSecret1, refreshTokenSecret2, settings } from "../settings";
 import  Jwt  from "jsonwebtoken";
 import { usersCollection } from "../db/db";
 import { randomUUID } from "crypto";
@@ -22,7 +22,7 @@ export const authService = {
             _id: new ObjectId(),
             login,
             email,
-            passwordHash, 
+            passwordHash,
             passwordSalt,
             createdAt: new Date().toISOString(),
             emailConfirmation: {
@@ -31,7 +31,9 @@ export const authService = {
                     minutes: 60
                 }),
                 isConfirmed: false
-            }
+            },
+            refreshTokenBlackList: [],
+            refreshToken: ""
         }
 
         const createResult = usersRepository.createUser(newUser)
@@ -44,6 +46,7 @@ export const authService = {
         }
         return createResult
     },
+
     async checkCredentials (loginOrEmail: string, password: string) {
         const user = await usersRepository.findByLoginOrEmail(loginOrEmail)
 
@@ -86,4 +89,35 @@ export const authService = {
         const foundUserByEmail = await usersCollection.updateOne({_id: new ObjectId(userId)}, {$set: {"emailConfirmation.isConfirmed": true}})
         return foundUserByEmail.matchedCount === 1 
     },
+    //todo, may be finished!
+    async findRefreshToken(token: string) {
+        const result = await usersCollection.findOne({token})
+        return result
+    },
+
+    async validateRefreshToken(refreshToken: string): Promise<any>{
+        try {
+          const payload = Jwt.verify(refreshToken, refreshTokenSecret2);
+          return payload;
+        } catch (error) {
+          return null; // if token invalid
+        }
+    },
+
+    async findTokenInBlackList(userId: string, token: string):Promise<boolean>{
+        const userByToken = await usersCollection.findOne({id: userId, refreshTokenBlackList: {$in: [token]}})
+        return !!userByToken
+    },
+
+    async refreshTokens(userId: string): Promise<{ accessToken: string, newRefreshToken: string }> {
+        try {
+          const accessToken = Jwt.sign({ userId }, accessTokenSecret1 , { expiresIn: '10s' });
+
+          const newRefreshToken = Jwt.sign({ userId }, refreshTokenSecret2, { expiresIn: '20s' });
+      
+          return { accessToken, newRefreshToken };
+        } catch (error) {
+          throw new Error('Failed to refresh tokens');
+        }
+      }
 }

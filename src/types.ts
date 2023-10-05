@@ -28,9 +28,11 @@ import { CommentViewModel } from './models/comments/commentViewModel';
     login: string,
     email: string,
     createdAt: string,
-    passwordHash: string
-    passwordSalt: string
-    emailConfirmation: EmailConfirmationType
+    passwordHash: string,
+    passwordSalt: string,
+    emailConfirmation: EmailConfirmationType,
+    refreshToken: string,
+    refreshTokenBlackList: string[]
   }
 
   export type createPostDTOType = {         // DTO: data transfer object

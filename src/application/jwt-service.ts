@@ -1,11 +1,11 @@
-import { UsersMongoDbType } from "../types";
 import jwt from "jsonwebtoken"
-import { settings } from "../settings";
+import { accessTokenSecret1, refreshTokenSecret2, settings } from "../settings";
 import { ObjectId } from "mongodb";
+import { UsersMongoDbType } from '../types';
 
 export const jwtService =  {
     async createJWT(user: UsersMongoDbType) {
-        const token = jwt.sign({userId: user._id}, settings.JWT_SECRET, {expiresIn: '1h'})
+        const token = jwt.sign({userId: user._id}, accessTokenSecret1, {expiresIn: '10sec'})
         return token
     },
 
@@ -16,5 +16,10 @@ export const jwtService =  {
         } catch (error) {
             return null;
         }
+    },
+    //todo, may be finished!
+    async createRefreshToken(user: UsersMongoDbType) {
+        const refToken = jwt.sign({userId: user._id}, refreshTokenSecret2, {expiresIn: '20sec'})
+        return refToken;
     }
 }

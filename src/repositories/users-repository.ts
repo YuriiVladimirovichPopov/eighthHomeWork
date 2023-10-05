@@ -1,9 +1,8 @@
 import { ObjectId} from "mongodb";
 import { usersCollection } from "../db/db";
 import { UsersMongoDbType } from '../types';
-import { PaginatedType, UserPagination } from "../routers/helpers/pagination";
-import { UserViewModel } from "../models/users/userViewModel";
-import { UserInputModel } from "../models/users/userInputModel";
+import { UserPagination } from "../routers/helpers/pagination";
+import { UserViewModel } from '../models/users/userViewModel';
 import { PaginatedUser } from "../models/users/paginatedQueryUser";
 
 
@@ -13,12 +12,11 @@ export const usersRepository = {
         return {
             id: user._id.toString(),
             login: user.login,
-            email: user.email,              // TODO fix it all
+            email: user.email,             
             createdAt: user.createdAt,
             emailConfirmation: user.emailConfirmation
             //passwordHash: user.passwordHash,
             //passwordSalt: user.passwordSalt
-            
         }
     },
 
@@ -58,7 +56,7 @@ export const usersRepository = {
     },
 
     async findUserById(id: ObjectId):Promise<UserViewModel | null> {
-        const userById = await usersCollection.findOne({_id: new ObjectId(id)},)
+        const userById = await usersCollection.findOne({_id: new ObjectId(id)}, {projection: {passwordSalt: 0, passwordHash: 0}})
         if(!userById) {
             return null
         }
@@ -69,14 +67,13 @@ export const usersRepository = {
         const user = await usersCollection.findOne({$or: [{email: loginOrEmail}, {login: loginOrEmail}]})
         return user
     },
-//new
+
     async findUserByEmail(email: string) {
         const user = await usersCollection.findOne({email: email})
         return user
     },
 
     async findUserByConfirmationCode(emailConfirmationCode: string) {
-        //const user = await usersCollection.findOne({})
         const user = await usersCollection.findOne({"emailConfirmation.confirmationCode": emailConfirmationCode})
         return user
     },

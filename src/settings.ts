@@ -18,8 +18,9 @@ app.use(jsonBodyMiddleware)
 
 export const settings = {
     JWT_SECRET: process.env.JWT_SECRET || "1234",
-
 }
+export const accessTokenSecret1 = process.env.ACCESS_TOKEN_SECRET || "1235"
+export const refreshTokenSecret2 = process.env.REFRESH_TOKEN_SEC || "9876"
 
 app.use('/blogs', blogsRouter)
 

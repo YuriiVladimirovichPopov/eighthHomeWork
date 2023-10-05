@@ -34,7 +34,7 @@ export const usersRepository = {
 
         const result: UsersMongoDbType[] =
         await usersCollection.find(filter, {projection: 
-            {_id: 0, passwordSalt: 0, passwordHash: 0, emailConfirmation: 0}}) 
+            {passwordSalt: 0, passwordHash: 0}}) 
             
           .sort({[pagination.sortBy]: pagination.sortDirection})
           .skip(pagination.skip)

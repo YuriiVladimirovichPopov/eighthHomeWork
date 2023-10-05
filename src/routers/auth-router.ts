@@ -31,7 +31,7 @@ console.log(user)
         const refreshToken = jwtService.createRefreshToken(user)
 console.log(refreshToken)
          return res
-         .cookie('refreshToken', refreshToken, {httpOnly: true})     //secure: true
+         .cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})     //secure: true
          .status(sendStatus.OK_200)
          .json({accessToken: token})
     } else {

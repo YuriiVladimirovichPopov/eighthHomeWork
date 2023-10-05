@@ -134,11 +134,11 @@ authRouter.post('refresh-token', async (req: Request, res: Response) => {
     await usersCollection.updateOne({id: user.id}, { $push : { refreshTokenBlackList: refreshToken } })
 
     res.cookie('refreshToken', tokens.newRefreshToken, {httpOnly: true, secure: true})
-    return res.sendStatus(sendStatus.OK_200).json({ accessToken: tokens.accessToken })
+    return res.status(sendStatus.OK_200).send({ accessToken: tokens.accessToken })
 
     } catch(error) {
         console.error(error)
-        return res.sendStatus(sendStatus.INTERNAL_SERVER_ERROR_500).send({ message: 'Server error'})
+        return res.status(sendStatus.INTERNAL_SERVER_ERROR_500).send({ message: 'Server error'})
 
     }
 })
@@ -166,6 +166,6 @@ authRouter.post('logout', async (req: Request, res: Response) => {
             res.sendStatus(sendStatus.NO_CONTENT_204);
     } catch (error) {
         console.error(error)
-        return res.sendStatus(sendStatus.INTERNAL_SERVER_ERROR_500).send({ message: 'Server error'})
+        return res.status(sendStatus.INTERNAL_SERVER_ERROR_500).send({ message: 'Server error'})
     }
 })

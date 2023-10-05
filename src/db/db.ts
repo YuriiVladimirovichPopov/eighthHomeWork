@@ -1,7 +1,8 @@
 import dotenv from 'dotenv'
 dotenv.config()
 import { BlogsMongoDbType, PostsMongoDbType, UsersMongoDbType, CommentsMongoDbType } from '../types';
-import { MongoClient } from 'mongodb'
+import { Auth, MongoClient } from 'mongodb'
+import { AuthViewModel } from '../models/auth';
 
 
 const url = process.env.mongoUrl 
@@ -20,6 +21,10 @@ export const postsCollection = client.db().collection<PostsMongoDbType>('posts')
 export const usersCollection = client.db().collection<UsersMongoDbType>('users')
 
 export const commentsCollection = client.db().collection<CommentsMongoDbType>('comments')
+
+export const authCollection = client.db().collection<AuthViewModel>('auth')
+
+export const tokenCollection = client.db().collection<AuthViewModel>('token')
 
 export const  runDb = async () => {
   try {

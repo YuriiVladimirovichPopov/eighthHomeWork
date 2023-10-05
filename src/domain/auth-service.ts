@@ -10,11 +10,12 @@ import { accessTokenSecret1, refreshTokenSecret2, settings } from "../settings";
 import  Jwt  from "jsonwebtoken";
 import { usersCollection } from "../db/db";
 import { randomUUID } from "crypto";
+import { UserCreateViewModel } from "../models/users/createUser";
 
 
 export const authService = {
     
-    async createUser (login: string, email: string, password: string): Promise<UserViewModel | null> {
+    async createUser (login: string, email: string, password: string): Promise<UserCreateViewModel | null> {
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await this._generateHash(password, passwordSalt)
         
@@ -58,7 +59,7 @@ export const authService = {
         }
         return user
     },
-
+    /*
     async confirmEmail(code: string): Promise<UserViewModel | boolean> {
         let user = await usersRepository.findUserByConfirmationCode(code)
         if (!user) return false
@@ -69,7 +70,7 @@ export const authService = {
         let result = await usersRepository.createUser(user)
             return result
     },
-
+*/
     async checkAndFindUserByToken(token: string) {
         try {
             const result: any = Jwt.verify(token, settings.JWT_SECRET)

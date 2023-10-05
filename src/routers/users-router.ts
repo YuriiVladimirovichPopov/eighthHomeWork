@@ -2,7 +2,7 @@ import {Request, Response, Router } from "express";
 import { sendStatus } from "./send-status";
 import { authorizationValidation,
           inputValidationErrors } from "../middlewares/input-validation-middleware";
-import { RequestWithParams, UsersMongoDbType } from '../types';
+import { RequestWithParams } from '../types';
 import { getByIdParam } from "../models/getById";
 import { getUsersPagination } from './helpers/pagination';
 import { QueryUserRepository } from "../query repozitory/queryUserRepository";

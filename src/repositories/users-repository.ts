@@ -4,6 +4,7 @@ import { UsersMongoDbType } from '../types';
 import { UserPagination } from "../routers/helpers/pagination";
 import { UserViewModel } from '../models/users/userViewModel';
 import { PaginatedUser } from "../models/users/paginatedQueryUser";
+import { UserCreateViewModel } from "../models/users/createUser";
 
 
 export const usersRepository = {
@@ -78,9 +79,14 @@ export const usersRepository = {
         return user
     },
     
-    async createUser(newUser: UsersMongoDbType): Promise<UserViewModel> { 
+    async createUser(newUser: UsersMongoDbType): Promise<UserCreateViewModel> { 
         await usersCollection.insertOne(newUser)
-        return this._userMapper(newUser)
+        return {
+            id: newUser._id.toString(),
+            login: newUser.login,
+            email: newUser.email,
+            createdAt: newUser.createdAt,
+        }
     },
 
     async deleteUser(id: string): Promise<boolean> {

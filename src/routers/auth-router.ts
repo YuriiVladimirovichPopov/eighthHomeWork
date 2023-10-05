@@ -22,7 +22,7 @@ import cookieParser from "cookie-parser";
 
 export const authRouter = Router ({})
 
-authRouter.post('/login', async(req: RequestWithBody<LoginInputType>, res: Response) => {
+authRouter.post('/login', async(req: Request, res: Response) => {
     
     const user = await authService.checkCredentials(req.body.loginOrEmail, req.body.password)
 

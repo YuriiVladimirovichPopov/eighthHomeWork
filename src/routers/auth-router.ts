@@ -144,7 +144,7 @@ console.log(`Refresh token`, refreshToken)
 
 authRouter.post('/logout', async (req: Request, res: Response) => {
     try {
-        const refreshToken = req.headers.cookie?.split('=')[1]      
+        const refreshToken = req.cookies.refreshToken    
         console.log('refreshToken', refreshToken)
            if (!refreshToken) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Refresh token not found' });
       

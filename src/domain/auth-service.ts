@@ -106,16 +106,16 @@ export const authService = {
         }
     },
 
-    async findTokenInBlackList(userId: string, token: string):Promise<boolean>{
+    async findTokenInBlackList(userId: string, token: string): Promise<boolean>{
         const userByToken = await usersCollection.findOne({id: userId, refreshTokenBlackList: {$in: [token]}})
         return !!userByToken
     },
 
     async refreshTokens(userId: string): Promise<{ accessToken: string, newRefreshToken: string }> {
         try {
-          const accessToken = Jwt.sign({ userId }, settings.accessTokenSecret1 , { expiresIn: '1000s' });
+          const accessToken = Jwt.sign({ userId }, settings.accessTokenSecret1 , { expiresIn: '10s' });
 
-          const newRefreshToken = Jwt.sign({ userId }, settings.refreshTokenSecret2, { expiresIn: '2000s' });
+          const newRefreshToken = Jwt.sign({ userId }, settings.refreshTokenSecret2, { expiresIn: '20s' });
       
           return { accessToken, newRefreshToken };
         } catch (error) {

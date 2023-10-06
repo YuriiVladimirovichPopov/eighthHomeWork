@@ -89,12 +89,12 @@ export const authService = {
         const foundUserByEmail = await usersCollection.updateOne({_id: new ObjectId(userId)}, {$set: {"emailConfirmation.isConfirmed": true}})
         return foundUserByEmail.matchedCount === 1 
     },
-    //todo, may be finished!
+    /*
     async findRefreshToken(token: string) {
         const result = await usersCollection.findOne({token})
         return result
     },
-
+    */
     async validateRefreshToken(refreshToken: string): Promise<any>{
         console.log("validateRefreshToken", refreshToken)
         try {

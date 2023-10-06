@@ -1,6 +1,5 @@
 import { Response, Request, Router } from "express";
 import { sendStatus } from './send-status';
-import { LoginInputType } from '../models/users/loginInputModel';
 import { RequestWithBody, RequestWithUser, UsersMongoDbType } from '../types';
 import { jwtService } from "../application/jwt-service";
 import { authMiddleware } from '../middlewares/validations/auth.validation';
@@ -17,7 +16,6 @@ import { usersCollection } from "../db/db";
 import { randomUUID } from 'crypto';
 import { add } from "date-fns";
 import { error } from 'console';
-import cookieParser from "cookie-parser";
 
 
 export const authRouter = Router ({})
@@ -124,7 +122,7 @@ console.log(`Refresh token`, refreshToken)
           
 
     const user = await usersRepository.findUserById(isValid.userId);
-    console.log(user)
+    console.log('user', user)
     if(!user) return res.sendStatus(sendStatus.UNAUTHORIZED_401);
 
     const validToken = await  authService.findTokenInBlackList(user.id, refreshToken);

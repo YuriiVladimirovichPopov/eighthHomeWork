@@ -21,7 +21,8 @@ export const settings = {
     accessTokenSecret1: process.env.ACCESS_TOKEN_SECRET || "1235",
     refreshTokenSecret2: process.env.REFRESH_TOKEN_SEC || "9876"
 }
- 
+
+app.use(cookieParser())
 
 app.use('/blogs', blogsRouter)
 
@@ -37,4 +38,3 @@ app.use('/emails', emailsRouter)
 
 app.use('/testing', testingRouter)
 
-app.use(cookieParser())

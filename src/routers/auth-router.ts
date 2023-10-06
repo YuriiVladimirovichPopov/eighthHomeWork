@@ -115,19 +115,19 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     try {
         console.log(`Refresh token`, req.cookies)
     const refreshToken = req.cookies.refreshToken
-        if (!refreshToken) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Refresh token not found' })
+        if (!refreshToken) return res.status(sendStatus.BAD_REQUEST_400).send({ message: 'Refresh token not found' })
 //console.log(`Refresh token`, req.cookies)
     const isValid = await authService.validateRefreshToken(refreshToken);
     console.log('isValid', isValid) 
-        if (!isValid) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Invalid refresh token' });
+        if (!isValid) return res.status(sendStatus.OK_200).send({ message: 'Invalid refresh token' });
           
 
     const user = await usersRepository.findUserById(isValid.userId);
     console.log('user', user)
-        if(!user) return res.sendStatus(sendStatus.UNAUTHORIZED_401);
+        if(!user) return res.status(sendStatus.NOT_FOUND_404).send({ message: 'User not found'});
 
     const validToken = await  authService.findTokenInBlackList(user.id, refreshToken);
-    if(validToken) return res.sendStatus(sendStatus.UNAUTHORIZED_401) 
+    if(validToken) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Token'}) 
 
     const tokens = await authService.refreshTokens(user.id);
 

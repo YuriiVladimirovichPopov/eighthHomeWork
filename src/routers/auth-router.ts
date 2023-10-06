@@ -21,14 +21,14 @@ import { error } from 'console';
 export const authRouter = Router ({})
 
 authRouter.post('/login', async(req: Request, res: Response) => {
-    
+    console.log(req.cookies, "hjkkldcsjhdf")
     const user = await authService.checkCredentials(req.body.loginOrEmail, req.body.password)
 console.log(user)
     if (user) {
         const token = await jwtService.createJWT(user)
         const refreshToken = await jwtService.createRefreshToken(user)
 console.log(refreshToken)
-        res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})     //secure: true
+        res.cookie('refreshToken', refreshToken, {httpOnly: true})     //secure: true
         res.status(sendStatus.OK_200).send({accessToken: token})
         return
     } else {
@@ -113,9 +113,10 @@ authRouter.post('/registration-email-resending', emailConfValidation, async(req:
 
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     try {
+        console.log(`Refresh token`, req.cookies)
     const refreshToken = req.cookies.refreshToken
-    if (!refreshToken) return res.sendStatus(sendStatus.UNAUTHORIZED_401).send({ message: 'Refresh token not found' })
-console.log(`Refresh token`, refreshToken)
+        if (!refreshToken) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Refresh token not found' })
+//console.log(`Refresh token`, req.cookies)
     const isValid = await authService.validateRefreshToken(refreshToken);
     console.log('isValid', isValid) 
         if (!isValid) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Invalid refresh token' });
@@ -123,7 +124,7 @@ console.log(`Refresh token`, refreshToken)
 
     const user = await usersRepository.findUserById(isValid.userId);
     console.log('user', user)
-    if(!user) return res.sendStatus(sendStatus.UNAUTHORIZED_401);
+        if(!user) return res.sendStatus(sendStatus.UNAUTHORIZED_401);
 
     const validToken = await  authService.findTokenInBlackList(user.id, refreshToken);
     if(validToken) return res.sendStatus(sendStatus.UNAUTHORIZED_401) 

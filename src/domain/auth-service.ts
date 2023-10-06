@@ -101,6 +101,7 @@ export const authService = {
           const payload = Jwt.verify(refreshToken, settings.refreshTokenSecret2);
           return payload;
         } catch (error) {
+            console.log("error", error)
           return null; // if token invalid
         }
     },
@@ -112,9 +113,9 @@ export const authService = {
 
     async refreshTokens(userId: string): Promise<{ accessToken: string, newRefreshToken: string }> {
         try {
-          const accessToken = Jwt.sign({ userId }, settings.accessTokenSecret1 , { expiresIn: '10s' });
+          const accessToken = Jwt.sign({ userId }, settings.accessTokenSecret1 , { expiresIn: '1000s' });
 
-          const newRefreshToken = Jwt.sign({ userId }, settings.refreshTokenSecret2, { expiresIn: '20s' });
+          const newRefreshToken = Jwt.sign({ userId }, settings.refreshTokenSecret2, { expiresIn: '2000s' });
       
           return { accessToken, newRefreshToken };
         } catch (error) {

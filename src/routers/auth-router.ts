@@ -28,7 +28,7 @@ console.log(user)
         const token = await jwtService.createJWT(user)
         const refreshToken = await jwtService.createRefreshToken(user)
 console.log(refreshToken)
-        res.cookie('refreshToken', refreshToken, {httpOnly: true})     //secure: true
+        res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})     //secure: true
         res.status(sendStatus.OK_200).send({accessToken: token})
         return
     } else {

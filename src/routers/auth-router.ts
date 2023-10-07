@@ -144,7 +144,7 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
         console.log('is valid', isValid)
             if (!isValid) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Invalid refresh token' });
             
-        const user = await usersRepository.findUserById(isValid.user);
+        const user = await usersRepository.findUserById(isValid.userId);
         if(!user) return res.sendStatus(sendStatus.UNAUTHORIZED_401);
 
         const validToken = await  authService.findTokenInBlackList(user.id, refreshToken); //userId

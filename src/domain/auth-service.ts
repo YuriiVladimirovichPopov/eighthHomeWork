@@ -107,7 +107,7 @@ export const authService = {
     },
 
     async findTokenInBlackList(userId: string, token: string): Promise<boolean>{
-        const userByToken = await usersCollection.findOne({id: userId, refreshTokenBlackList: {$in: [token]}})
+        const userByToken = await usersCollection.findOne({_id: new ObjectId(userId), refreshTokenBlackList: {$in: [token]}})
         return !!userByToken
     },
 

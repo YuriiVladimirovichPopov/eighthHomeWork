@@ -127,7 +127,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
         if(!user) return res.status(401).send({ message: 'User not found', isValid: isValid});
 
     const validToken = await  authService.findTokenInBlackList(user.id, refreshToken);
-    if(validToken) return res.status(432).send({ message: 'Token'}) 
+    if(validToken) return res.status(401).send({ message: 'Token'}) 
 
     const tokens = await authService.refreshTokens(user.id);
 

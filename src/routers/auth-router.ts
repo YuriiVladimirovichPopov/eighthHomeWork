@@ -22,14 +22,11 @@ import { ObjectId } from 'mongodb';
 export const authRouter = Router ({})
 
 authRouter.post('/login', async(req: Request, res: Response) => {
-    console.log(req.cookies, "hjkkldcsjhdf")
     const user = await authService.checkCredentials(req.body.loginOrEmail, req.body.password)
-console.log(user)
-    if (user) {
-        const token = await jwtService.createJWT(user)
-        const refreshToken = await jwtService.createRefreshToken(user)
-console.log(refreshToken)
-        res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})     //secure: true
+        if (user) {
+    const token = await jwtService.createJWT(user)
+    const refreshToken = await jwtService.createRefreshToken(user)
+        res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})   
         res.status(sendStatus.OK_200).send({accessToken: token})
         return
     } else {
@@ -41,7 +38,7 @@ authRouter.get('/me', authMiddleware, async(req: RequestWithUser<UserViewModel>,
     if(!req.user){
         return res.sendStatus(sendStatus.UNAUTHORIZED_401)
     } else {
-        return res.sendStatus(sendStatus.OK_200)
+        return res.status(sendStatus.OK_200)
             .send({
             email: req.user.email,
             login: req.user.login,
@@ -114,33 +111,26 @@ authRouter.post('/registration-email-resending', emailConfValidation, async(req:
 
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     try {
-        //console.log(`Refresh token`, req.cookies)
-    const refreshToken = req.cookies.refreshToken
-        if (!refreshToken) return res.status(401).send({ message: 'Refresh token not found' })
-//console.log(`Refresh token`, req.cookies)
-    const isValid = await authService.validateRefreshToken(refreshToken);
-    console.log('isValid', isValid) 
-        if (!isValid) return res.status(401).send({ message: 'Invalid refresh token' });
-          
+        const refreshToken = req.cookies.refreshToken
+            if (!refreshToken) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Refresh token not found' })
+    
+        const isValid = await authService.validateRefreshToken(refreshToken);
+            if (!isValid) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Invalid refresh token' });
 
-    const user = await usersRepository.findUserById(isValid.userId);
-    console.log('user', user)
-        if(!user) return res.status(401).send({ message: 'User not found', isValid: isValid});
+        const user = await usersRepository.findUserById(isValid.userId);
+            if(!user) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'User not found', isValid: isValid});
 
-    const validToken = await  authService.findTokenInBlackList(user.id, refreshToken);
-    if(validToken) return res.status(401).send({ message: 'Token'}) 
+        const validToken = await  authService.findTokenInBlackList(user.id, refreshToken);
+            if(validToken) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Token'}) 
 
-    const tokens = await authService.refreshTokens(user.id);
+        const tokens = await authService.refreshTokens(user.id);
 
-    await usersCollection.updateOne({_id: new ObjectId(user.id)}, { $push : { refreshTokenBlackList: refreshToken } })
-
-    res.cookie('refreshToken', tokens.newRefreshToken, {httpOnly: true, secure: true})
-    return res.status(sendStatus.OK_200).send({ accessToken: tokens.accessToken })
+        await usersCollection.updateOne({_id: new ObjectId(user.id)}, { $push : { refreshTokenBlackList: refreshToken } })
+            res.cookie('refreshToken', tokens.newRefreshToken, {httpOnly: true, secure: true})
+                return res.status(sendStatus.OK_200).send({ accessToken: tokens.accessToken })
 
     } catch(error) {
-        console.error(error)
         return res.status(sendStatus.INTERNAL_SERVER_ERROR_500).send({ message: 'Server error'})
-
     }
 })
 
@@ -161,7 +151,7 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
         
         if(validToken)return res.sendStatus(sendStatus.UNAUTHORIZED_401); 
     
-    await usersCollection.updateOne({id: user.id}, { $push : { refreshTokenBlackList: refreshToken } });
+    await usersCollection.updateOne({_id: new ObjectId(user.id)}, { $push : { refreshTokenBlackList: refreshToken } });
         
             res.clearCookie('refreshToken', { httpOnly: true, secure: true });
             res.sendStatus(sendStatus.NO_CONTENT_204);

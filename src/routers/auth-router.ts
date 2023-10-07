@@ -115,7 +115,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     try {
         //console.log(`Refresh token`, req.cookies)
     const refreshToken = req.cookies.refreshToken
-        if (!refreshToken) return res.status(465).send({ message: 'Refresh token not found' })
+        if (!refreshToken) return res.status(401).send({ message: 'Refresh token not found' })
 //console.log(`Refresh token`, req.cookies)
     const isValid = await authService.validateRefreshToken(refreshToken);
     console.log('isValid', isValid) 

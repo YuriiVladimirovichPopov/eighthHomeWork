@@ -54,9 +54,9 @@ export const usersRepository = {
           return res
     },
 
-    async findUserById(id: ObjectId):Promise<UserViewModel | null> {
+    async findUserById(id: ObjectId): Promise<UserViewModel | null> {
         const userById = await usersCollection.findOne(
-            {_id: id}, 
+            {_id: new ObjectId(id)}, 
             {  projection: {passwordSalt: 0, 
                             passwordHash: 0, 
                             emailConfirmation: 0, 

@@ -96,12 +96,12 @@ export const authService = {
     },
     */
     async validateRefreshToken(refreshToken: string): Promise<any>{
-        console.log("validateRefreshToken", refreshToken)
+        //console.log("validateRefreshToken", refreshToken)
         try {
           const payload = Jwt.verify(refreshToken, settings.refreshTokenSecret2);
           return payload;
         } catch (error) {
-            console.log("error", error)
+            //console.log("error", error)
           return null; // if token invalid
         }
     },

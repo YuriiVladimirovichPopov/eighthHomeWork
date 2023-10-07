@@ -18,12 +18,12 @@ const token = req.headers.authorization.split(' ')[1]
 const userId = await jwtService.getUserIdByToken(token)
 console.log('token', token)
     if (!userId) {
-        return res.sendStatus(444) 
+        return res.sendStatus(sendStatus.UNAUTHORIZED_401) 
     }
     if (!ObjectId.isValid(userId)) {
         return res.sendStatus(sendStatus.UNAUTHORIZED_401)
     }
-    
+
 const user = await usersCollection.findOne({_id: new ObjectId(userId)})
     if (!user) {
         return res.sendStatus(sendStatus.UNAUTHORIZED_401)

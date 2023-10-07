@@ -16,6 +16,7 @@ import { usersCollection } from "../db/db";
 import { randomUUID } from 'crypto';
 import { add } from "date-fns";
 import { error } from 'console';
+import { ObjectId } from 'mongodb';
 
 
 export const authRouter = Router ({})
@@ -131,7 +132,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 
     const tokens = await authService.refreshTokens(user.id);
 
-    await usersCollection.updateOne({id: user.id}, { $push : { refreshTokenBlackList: refreshToken } })
+    await usersCollection.updateOne({_id: new ObjectId(user.id)}, { $push : { refreshTokenBlackList: refreshToken } })
 
     res.cookie('refreshToken', tokens.newRefreshToken, {httpOnly: true, secure: true})
     return res.status(sendStatus.OK_200).send({ accessToken: tokens.accessToken })

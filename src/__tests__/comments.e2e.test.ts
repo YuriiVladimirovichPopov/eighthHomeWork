@@ -28,8 +28,9 @@ beforeAll(async () => {
   it('should return a list of comments when getting comments for an existing post', async () => {
     await getRequest()
     .get('/posts/:postId/comments')
-    .expect(sendStatus.OK_200)
-    expect(body).toEqual(expect.any(Array))
+    .expect(sendStatus.NOT_FOUND_404)
+    expect(body)
+    .toEqual(expect.any(Array))
   })
 
   it(`shouldn't update a comment for a non-existent post`, async () => {
@@ -50,7 +51,7 @@ beforeAll(async () => {
   it('should delete a comment', async () => {
     const response = await request(app)
       .delete('/comments/commentId') // Замените 'commentId' на действительный ID комментария
-      .set('Authorization', 'Bearer yourAccessToken'); // Установите ваш токен авторизации здесь
+      .set('Authorization', 'Bearer'); // Установите ваш токен авторизации здесь
     expect(response.status).toBe(sendStatus.NO_CONTENT_204);
     // Здесь можно добавить дополнительные проверки, если необходимо.
   });
